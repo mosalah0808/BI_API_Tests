@@ -1,0 +1,63 @@
+﻿using System;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
+using WebApi.Models;
+using Xunit;
+
+namespace WebApi.Integration.Tests
+{
+    public class LessonValidationTests_Parametrization: IClassFixture<TestFixture>
+    {
+        private readonly HttpClient _httpClient;
+        private readonly string _baseUri;
+        
+        public LessonValidationTests_Parametrization(TestFixture testFixture)
+        {
+            _httpClient = new HttpClient();
+            var configuration = testFixture.Configuration;
+            _baseUri = configuration["BaseUri"];
+        }
+        
+        [Fact]
+        public async Task IfCourseIdIsZero_PostLessonShouldReturnError()
+        {
+            //Arrange 
+            var lessonModel = new LessonModel
+            {
+                CourseId = 0,
+                Subject = Guid.NewGuid().ToString()
+            };
+
+            //Act
+            var response = await _httpClient.PostAsJsonAsync($"{_baseUri}/lesson", lessonModel);
+            
+            //Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var responseMessage = await response.Content.ReadAsStringAsync();
+            Assert.Equal("CourseId должен быть больше нуля", responseMessage);
+        }
+        
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public async Task IfSubjectIsNull_PostLessonShouldReturnError(string subject)
+        {
+            //Arrange 
+            var lessonModel = new LessonModel
+            {
+                CourseId = 1,
+                Subject = subject
+            };
+
+            //Act
+            var response = await _httpClient.PostAsJsonAsync($"{_baseUri}/lesson", lessonModel);
+            
+            //Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var responseMessage = await response.Content.ReadAsStringAsync();
+            Assert.Equal("Поле Subject не должно быть пустым", responseMessage);
+        }
+    }
+}
