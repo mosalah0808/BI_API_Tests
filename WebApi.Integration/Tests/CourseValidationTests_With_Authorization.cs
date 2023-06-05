@@ -23,13 +23,13 @@ namespace WebApi.Integration.Tests
         }
         
         [Fact]
-        public async Task IfCourseIdIsZero_PostLessonShouldReturnError()
+        public async Task IfPriceIsZero_PostCourseShouldReturnError()
         {
             //Arrange 
             var courseModel = new CourseModel
             {
                 Name = Guid.NewGuid().ToString(),
-                Price = 10
+                Price = 0
             };
 
             //Act
@@ -39,7 +39,7 @@ namespace WebApi.Integration.Tests
             //Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             var responseMessage = await response.Content.ReadAsStringAsync();
-            Assert.Equal("CourseId должен быть больше нуля", responseMessage);
+            Assert.Equal(Errors.Поле_Price_должно_быть_больше_нуля, responseMessage);
         }
     }
 }

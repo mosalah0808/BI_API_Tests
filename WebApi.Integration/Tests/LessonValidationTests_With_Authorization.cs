@@ -3,8 +3,6 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Demo.Authentication.Dto;
-using Newtonsoft.Json;
 using WebApi.Models;
 using Xunit;
 
@@ -41,7 +39,7 @@ namespace WebApi.Integration.Tests
             //Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             var responseMessage = await response.Content.ReadAsStringAsync();
-            Assert.Equal("CourseId должен быть больше нуля", responseMessage);
+            Assert.Equal(Errors.CourseId_должен_быть_больше_нуля, responseMessage);
         }
     }
 }

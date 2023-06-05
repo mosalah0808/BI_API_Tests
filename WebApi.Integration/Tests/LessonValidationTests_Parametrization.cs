@@ -36,7 +36,7 @@ namespace WebApi.Integration.Tests
             //Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             var responseMessage = await response.Content.ReadAsStringAsync();
-            Assert.Equal("CourseId должен быть больше нуля", responseMessage);
+            Assert.Equal(Errors.CourseId_должен_быть_больше_нуля, responseMessage);
         }
         
         [Theory]
@@ -57,7 +57,7 @@ namespace WebApi.Integration.Tests
             //Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             var responseMessage = await response.Content.ReadAsStringAsync();
-            Assert.Equal("Поле Subject не должно быть пустым", responseMessage);
+            Assert.Equal(Errors.Поле_Subject_не_должно_быть_пустым, responseMessage);
         }
     }
 }

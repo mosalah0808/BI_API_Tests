@@ -35,15 +35,23 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([Required]CourseModel lessonDto)
+        public async Task<IActionResult> Add([Required]AddCourseModel courseModel)
         {
-            return Ok(await _service.Create(_mapper.Map<CourseDto>(lessonDto)));
+            if (courseModel.Price == 0)
+            {
+                return BadRequest("Поле Price должно быть больше нуля");
+            }
+            if (string.IsNullOrWhiteSpace(courseModel.Name))
+            {
+                return BadRequest("Поле Name не должно быть пустым");
+            }
+            return Ok(await _service.Create(_mapper.Map<AddCourseModel, CourseDto>(courseModel)));
         }
         
         [HttpPut("{id}")]
-        public async Task<IActionResult> Edit(int id, CourseModel lessonDto)
+        public async Task<IActionResult> Edit(int id, AddCourseModel courseModel)
         {
-            await _service.Update(id, _mapper.Map<CourseDto>(lessonDto));
+            await _service.Update(id, _mapper.Map<AddCourseModel, CourseDto>(courseModel));
             return Ok();
         }
         

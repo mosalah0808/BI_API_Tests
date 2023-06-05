@@ -39,14 +39,14 @@ namespace WebApi.Integration.Tests
             Assert.False(response.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             var responseMessage = await response.Content.ReadAsStringAsync();
-            Assert.Equal("CourseId должен быть больше нуля", responseMessage);
+            Assert.Equal(Errors.CourseId_должен_быть_больше_нуля, responseMessage);
 
             //Assert using Shoudly
             /*
             response.IsSuccessStatusCode.ShouldBeFalse();
             response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
             var responseMessage = await response.Content.ReadAsStringAsync();
-            responseMessage.ShouldBe("CourseId должен быть больше нуля");
+            responseMessage.ShouldBe(Errors.CourseId_должен_быть_больше_нуля);
             */
             
             //Assert using FluentAssertions
@@ -54,7 +54,7 @@ namespace WebApi.Integration.Tests
             response.IsSuccessStatusCode.Should().BeFalse();
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             var responseMessage = await response.Content.ReadAsStringAsync();
-            responseMessage.Should().Be("CourseId должен быть больше нуля");
+            responseMessage.Should().Be(Errors.CourseId_должен_быть_больше_нуля);
             */
         }
     }
