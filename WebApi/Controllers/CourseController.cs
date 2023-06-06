@@ -12,7 +12,7 @@ using WebApi.Models;
 
 namespace WebApi.Controllers
 {
-    //[Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
     [ApiController]
     [Route("[controller]")]
     public class CourseController: ControllerBase

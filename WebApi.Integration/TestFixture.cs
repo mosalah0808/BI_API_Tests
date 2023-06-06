@@ -20,10 +20,6 @@ namespace WebApi.Integration
             Configuration = new ConfigurationBuilder()
                 .AddJsonFile($"appsettings.json").Build();
         }
-
-        public void Dispose()
-        {
-        }
         
         public async Task InitializeAsync()
         {

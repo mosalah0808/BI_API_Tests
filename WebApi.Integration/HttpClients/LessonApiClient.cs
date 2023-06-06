@@ -23,7 +23,7 @@ public class LessonApiClient
     {
         if (token != null)
         {
-            AddAuthCookie(token);
+            AddToken(token);
         }
         return await _httpClient.GetAsync($"{_baseUri}/lesson/{id}");
     }
@@ -32,12 +32,12 @@ public class LessonApiClient
     {
         if (token != null)
         {
-            AddAuthCookie(token);
+            AddToken(token);
         }
         return await _httpClient.PostAsJsonAsync($"{_baseUri}/lesson", lessonModel);
     }
     
-    private void AddAuthCookie(string token)
+    private void AddToken(string token)
     {
         _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");    
     }
