@@ -19,7 +19,7 @@ public class CourseApiClient
         _baseUri = configuration["BaseUri"];
     }
 
-    public async Task<HttpResponseMessage> CreateCourseAsync(CourseModel course, string cookie = null)
+    public async Task<HttpResponseMessage> CreateCourseAsync(AddCourseModel course, string cookie = null)
     {
         if (cookie != null)
         {

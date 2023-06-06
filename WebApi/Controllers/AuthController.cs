@@ -27,7 +27,11 @@ namespace Demo.Authentication.Controllers
         public async Task<bool> Login(AuthDto dto)
         {
             // todo Проверяем пароль
-
+            if (dto.Login != "admin" && dto.Password != "admin")
+            {
+                return false;
+            }
+            
             var claims = new List<Claim>();
             claims.Add(new Claim("OTUS", "ASP.NET"));
             claims.Add(new Claim(ClaimTypes.Role, dto.Login));

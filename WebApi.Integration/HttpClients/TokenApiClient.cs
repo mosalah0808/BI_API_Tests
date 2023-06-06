@@ -20,11 +20,8 @@ public class TokenApiClient
         _baseUri = configuration["BaseUri"];
     }
     
-    public async Task<string> GetAdminTokenAsync()
+    public async Task<HttpResponseMessage> GetTokenInternalAsync(string name, string password)
     {
-        var response = await _httpClient.PostAsJsonAsync($"{_baseUri}/token", new AuthDto { Login = "admin", Password = "admin" });
-        var responseMessage = await response.Content.ReadAsStringAsync();
-        var tokenDto = JsonConvert.DeserializeObject<TokenResultDto>(responseMessage);
-        return tokenDto.IdToken;
+        return await _httpClient.PostAsJsonAsync($"{_baseUri}/token", new AuthDto { Login = name, Password = password });
     }
 }

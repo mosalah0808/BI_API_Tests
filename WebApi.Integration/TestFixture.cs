@@ -27,8 +27,8 @@ namespace WebApi.Integration
         
         public async Task InitializeAsync()
         {
-            Token = await new TokenApiClient().GetAdminTokenAsync();
-            AuthCookie = await new CookieAuthApiClient().GetAuthCookieAsync();
+            Token = await new TokenService().GetAdminTokenAsync();
+            AuthCookie = await new CookieService().GetAdminCookieAsync();
         }
 
         public Task DisposeAsync()

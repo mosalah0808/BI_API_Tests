@@ -28,17 +28,17 @@ public class CourseService
 
         #endregion
 
-        var courseModel = autoFixture.Create<CourseModel>();
+        var courseModel = autoFixture.Create<AddCourseModel>();
         return await AddCourseAsync(courseModel, cookie);
     }
     
-    public async Task<int> AddCourseAsync(CourseModel courseModel, string cookie = null)
+    public async Task<int> AddCourseAsync(AddCourseModel courseModel, string cookie = null)
     {
         var addCourseResponse = await AddCourseInternalAsync(courseModel, cookie);
         return JsonConvert.DeserializeObject<int>(await addCourseResponse.Content.ReadAsStringAsync());
     }
     
-    public async Task<HttpResponseMessage> AddCourseInternalAsync(CourseModel courseModel, string cookie = null)
+    public async Task<HttpResponseMessage> AddCourseInternalAsync(AddCourseModel courseModel, string cookie = null)
     {
         return await _applicationHttpClient.CreateCourseAsync(courseModel, cookie);
     }

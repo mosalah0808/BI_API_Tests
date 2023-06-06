@@ -1,10 +1,8 @@
-﻿using System.Linq;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Demo.Authentication.Dto;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 
 namespace WebApi.Integration.Services;
 
@@ -21,9 +19,8 @@ public class CookieAuthApiClient
         _baseUri = configuration["BaseUri"];
     }
     
-    public async Task<string> GetAuthCookieAsync()
+    public async Task<HttpResponseMessage> GetAuthCookieAsync(string login, string password)
     {
-        var response = await _httpClient.PostAsJsonAsync($"{_baseUri}/Auth/Login", new AuthDto { Login = "admin", Password = "admin" });
-        return response.Headers.FirstOrDefault(h=> h.Key == "Set-Cookie").Value.ToList().First();
+        return await _httpClient.PostAsJsonAsync($"{_baseUri}/Auth/Login", new AuthDto { Login = login, Password = password });
     }
 }
