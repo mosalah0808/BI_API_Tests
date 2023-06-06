@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using WebApi.Integration.Services;
 using WebApi.Models;
 using Xunit;
 
@@ -35,7 +36,7 @@ namespace WebApi.Integration.Tests
             //Act
             _httpClient.DefaultRequestHeaders.Add("cookie", _cookie);
             var response = await _httpClient.PostAsJsonAsync($"{_baseUri}/course", courseModel);
-            
+
             //Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             var responseMessage = await response.Content.ReadAsStringAsync();

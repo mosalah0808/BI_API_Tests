@@ -1,18 +1,18 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using Demo.Authentication.Dto;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using WebApi.Models;
 
 namespace WebApi.Integration.Services;
 
-public class CourseControllerClient
+public class TokenApiClient
 {
     private HttpClient _httpClient;
     private readonly string _baseUri;
 
-    public CourseControllerClient()
+    public TokenApiClient()
     {
         _httpClient = new HttpClient();
         var configuration = new ConfigurationBuilder()
@@ -20,9 +20,11 @@ public class CourseControllerClient
         _baseUri = configuration["BaseUri"];
     }
     
-    public async Task<int> CreateCourseAsync(CourseModel course)
+    public async Task<string> GetAdminTokenAsync()
     {
-        var addCourseResponse = await _httpClient.PostAsJsonAsync($"{_baseUri}/course", course);
-        return JsonConvert.DeserializeObject<int>(await addCourseResponse.Content.ReadAsStringAsync());
+        var response = await _httpClient.PostAsJsonAsync($"{_baseUri}/token", new AuthDto { Login = "admin", Password = "admin" });
+        var responseMessage = await response.Content.ReadAsStringAsync();
+        var tokenDto = JsonConvert.DeserializeObject<TokenResultDto>(responseMessage);
+        return tokenDto.IdToken;
     }
 }

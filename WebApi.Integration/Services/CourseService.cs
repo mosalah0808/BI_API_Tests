@@ -1,20 +1,22 @@
 ﻿using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
+using Newtonsoft.Json;
 using WebApi.Models;
 
 namespace WebApi.Integration.Services;
 
 public class CourseService
 {
-    private CourseControllerClient _applicationHttpClient;
+    private CourseApiClient _applicationHttpClient;
     public CourseService()
     {
-        _applicationHttpClient = new CourseControllerClient();
+        _applicationHttpClient = new CourseApiClient();
     }
     
    
-    public async Task<int> CreateRandomCourseAsync()
+    public async Task<int> CreateRandomCourseAsync(string cookie = null) 
     {
         var autoFixture = new Fixture();
 
@@ -27,6 +29,17 @@ public class CourseService
         #endregion
 
         var courseModel = autoFixture.Create<CourseModel>();
-        return await _applicationHttpClient.CreateCourseAsync(courseModel);
+        return await AddCourseAsync(courseModel, cookie);
+    }
+    
+    public async Task<int> AddCourseAsync(CourseModel courseModel, string cookie = null)
+    {
+        var addCourseResponse = await AddCourseInternalAsync(courseModel, cookie);
+        return JsonConvert.DeserializeObject<int>(await addCourseResponse.Content.ReadAsStringAsync());
+    }
+    
+    public async Task<HttpResponseMessage> AddCourseInternalAsync(CourseModel courseModel, string cookie = null)
+    {
+        return await _applicationHttpClient.CreateCourseAsync(courseModel, cookie);
     }
 }

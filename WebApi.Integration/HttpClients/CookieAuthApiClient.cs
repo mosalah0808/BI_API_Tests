@@ -8,12 +8,12 @@ using Newtonsoft.Json;
 
 namespace WebApi.Integration.Services;
 
-public class CookieAuthControllerClient
+public class CookieAuthApiClient
 {
     private HttpClient _httpClient;
     private readonly string _baseUri;
 
-    public CookieAuthControllerClient()
+    public CookieAuthApiClient()
     {
         _httpClient = new HttpClient();
         var configuration = new ConfigurationBuilder()
