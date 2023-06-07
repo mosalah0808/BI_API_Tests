@@ -1,16 +1,18 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using BusinessLogic.Contracts;
 
-namespace BusinessLogic.Contracts
+namespace WebApi.Models
 {
     /// <summary>
     /// ДТО курса
     /// </summary>
-    public class CourseDtoDel
+    public class DelCourseModel
     {
         /// <summary>
         /// Название
         /// </summary>
+        [MaxLength]
         public string Name { get; set; }
         
         /// <summary>
@@ -22,5 +24,10 @@ namespace BusinessLogic.Contracts
         /// Уроки
         /// </summary>
         public List<LessonDto> Lessons { get; set; }
+
+        /// <summary>
+        /// Удалено
+        /// </summary>
+        public bool Deleted { get; set; }
     }
 }

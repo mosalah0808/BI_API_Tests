@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Generic;
 
 namespace BusinessLogic.Contracts
 {
     /// <summary>
     /// ДТО курса
     /// </summary>
-    public class CourseDtoDel
+    public class CourseDto
     {
         /// <summary>
         /// Название
@@ -22,5 +21,10 @@ namespace BusinessLogic.Contracts
         /// Уроки
         /// </summary>
         public List<LessonDto> Lessons { get; set; }
+
+        /// <summary>
+        /// Удалено
+        /// </summary>
+        public bool Deleted { get; set; }
     }
 }

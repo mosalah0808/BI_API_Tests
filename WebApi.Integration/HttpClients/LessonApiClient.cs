@@ -38,7 +38,11 @@ public class LessonApiClient
     }
     
     private void AddToken(string token)
+
     {
-        _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");    
+        if (!_httpClient.DefaultRequestHeaders.Contains("Authorization"))
+        {
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+        }
     }
 }

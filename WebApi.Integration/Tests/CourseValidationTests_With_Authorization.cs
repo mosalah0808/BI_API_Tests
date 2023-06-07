@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -15,12 +16,14 @@ namespace WebApi.Integration.Tests
         private readonly string _baseUri;
         private readonly string _cookie;
 
+        private readonly CourseService _courseService;
         public CourseValidationTests_With_Authorization(TestFixture testFixture)
         {
             _httpClient = new HttpClient();
             var configuration = testFixture.Configuration;
             _baseUri = configuration["BaseUri"];
             _cookie = testFixture.AuthCookie;
+            _courseService = new CourseService();
         }
         
         [Fact]
@@ -41,6 +44,95 @@ namespace WebApi.Integration.Tests
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             var responseMessage = await response.Content.ReadAsStringAsync();
             Assert.Equal(Errors.Поле_Price_должно_быть_больше_нуля, responseMessage);
+        }
+
+        [Fact]
+        public async Task IfNameIsEmpty_PostCourseShouldReturnError()
+        {
+            //Arrange 
+            var courseModel = new CourseModel
+            {
+                Name = "",
+                Price = (new Random()).Next(int.MaxValue)
+            };
+
+            //Act
+            _httpClient.DefaultRequestHeaders.Add("cookie", _cookie);
+            var response = await _httpClient.PostAsJsonAsync($"{_baseUri}/course", courseModel);
+
+            //Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var responseMessage = await response.Content.ReadAsStringAsync();
+            Assert.Equal(Errors.Поле_Name_не_должно_быть_пустым, responseMessage);
+        }
+
+        [Fact]
+        public async Task IfInitialParametersAreSetCorrectly_PostCourseShouldCreateLessonSuccessfully()
+        {
+            //Arrange
+            var initialCourseModel = new AddCourseModel
+            {
+                Name = "course_name",
+                Price = (new Random()).Next(int.MaxValue)
+            };
+
+            //Act
+            var addCourseResponse = await _courseService.AddCourseInternalAsync(initialCourseModel, _cookie);
+
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, addCourseResponse.StatusCode);
+            var courseId = int.Parse(await addCourseResponse.Content.ReadAsStringAsync());
+            var course = await _courseService.GetCourseAsync(courseId);
+            Assert.Equal(initialCourseModel.Name, course.Name);
+            Assert.Equal(initialCourseModel.Price, course.Price);
+        }
+
+        [Fact]
+        public async Task IfCourseIsEdited_NewFieldValuesShouldBeSavedSuccessfully()
+        {
+            //Arrange
+            var newCourseModel = new AddCourseModel
+            {
+                Name = Guid.NewGuid().ToString(),
+                Price = (new Random()).Next(int.MaxValue)
+            };
+
+           var courseId = await _courseService.AddCourseAsync(newCourseModel, _cookie);
+            var editCourseModel = new AddCourseModel
+            {
+                Name = Guid.NewGuid().ToString(),
+                Price = (new Random()).Next(int.MaxValue)
+            };
+            //Act
+            var editCourseResponse = await _courseService.EditCourseInternalAsync(courseId, editCourseModel, _cookie);
+
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, editCourseResponse.StatusCode);
+            var course = await _courseService.GetCourseAsync(courseId);
+            Assert.Equal(editCourseModel.Name, course.Name);
+            Assert.Equal(editCourseModel.Price, course.Price);
+        }
+
+        [Fact]
+        public async Task IfCourseIsDeleted_Field_Deleted_ChangedOnTrue_Succesfully()
+        {
+            //Arrange
+            var newCourseModel = new AddCourseModel
+            {
+                Name = Guid.NewGuid().ToString(),
+                Price = (new Random()).Next(int.MaxValue)
+            };
+
+            var courseId = await _courseService.AddCourseAsync(newCourseModel, _cookie);
+           
+            //Act
+            var deletedCourseResponse = await _courseService.DeleteCourseInternalAsync(courseId, _cookie);
+
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, deletedCourseResponse.StatusCode);
+            var course = await _courseService.GetCourseAsyncDel(courseId);
+            Assert.True(course.Deleted);
+           // Assert.Equal(editCourseModel.Price, course.Price);
         }
     }
 }

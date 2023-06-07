@@ -32,4 +32,31 @@ public class CourseApiClient
     {
         _httpClient.DefaultRequestHeaders.Add("cookie", cookie);
     }
+
+    public async Task<HttpResponseMessage> GetCourseAsync(int id, string cookie = null)
+    {
+        if (cookie != null)
+        {
+            AddAuthCookie(cookie);
+        }
+        return await _httpClient.GetAsync($"{_baseUri}/course/{id}");
+    }
+
+    public async Task<HttpResponseMessage> EditCourseAsync(int id, AddCourseModel course, string cookie = null)
+    {
+        if (cookie != null)
+        {
+            AddAuthCookie(cookie);
+        }
+        return await _httpClient.PutAsJsonAsync($"{_baseUri}/course/{id}",course);
+    }
+
+    public async Task<HttpResponseMessage> DeleteCourseAsync(int id, string cookie = null)
+    {
+        if (cookie != null)
+        {
+            AddAuthCookie(cookie);
+        }
+        return await _httpClient.DeleteAsync($"{_baseUri}/course/{id}");
+    }
 }
