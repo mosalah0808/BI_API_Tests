@@ -14,12 +14,14 @@ namespace WebApi.Integration.Tests
     {
         private readonly HttpClient _httpClient;
         private readonly string _baseUri;
-        
+        private readonly string _cookie;
+
         public CourseControllerTests(TestFixture testFixture)
         {
             _httpClient = new HttpClient();
             var configuration = testFixture.Configuration;
             _baseUri = configuration["BaseUri"];
+            _cookie = testFixture.AuthCookie;
         }
         
         [Fact]
@@ -31,6 +33,7 @@ namespace WebApi.Integration.Tests
                 Name = "course_name",
                 Price = (new Random()).Next(int.MaxValue)
             };
+            _httpClient.DefaultRequestHeaders.Add("cookie", _cookie);
             var addCourseResponse = await _httpClient.PostAsJsonAsync($"{_baseUri}/course", initialCourseModel);
             var courseId = JsonConvert.DeserializeObject<int>(await addCourseResponse.Content.ReadAsStringAsync());
             
