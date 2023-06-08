@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
+using DataAccess.Entities;
 using Newtonsoft.Json;
 using WebApi.Models;
 
@@ -54,10 +56,10 @@ public class CourseService
         return JsonConvert.DeserializeObject<AddCourseModel>(await response.Content.ReadAsStringAsync());
     }
 
-    public async Task<DelCourseModel> GetCourseAsyncDel(int id, string cookie = null)
+    public async Task<CourseModel> GetCourseAsyncDel(int id, string cookie = null)
     {
         var response = await GetCourseInternalAsync(id, cookie);
-        return JsonConvert.DeserializeObject<DelCourseModel>(await response.Content.ReadAsStringAsync());
+        return JsonConvert.DeserializeObject<CourseModel>(await response.Content.ReadAsStringAsync());
     }
 
     public async Task<HttpResponseMessage> EditCourseInternalAsync(int id, AddCourseModel course, string cookie = null)
@@ -68,5 +70,17 @@ public class CourseService
     public async Task<HttpResponseMessage> DeleteCourseInternalAsync(int id, string cookie = null)
     {
         return await _applicationHttpClient.DeleteCourseAsync(id, cookie);
+    }
+
+
+    public async Task<HttpResponseMessage> GetCourseListInternalAsync(int page, int itemsPerPage, string cookie = null)
+    {
+        return await _applicationHttpClient.GetListCourseAsync(page, itemsPerPage, cookie);
+    }
+
+    public async Task<List<CourseModel>> GetCourseListAsync(int page, int itemsPerPage, string cookie = null)
+    {
+        var response = await GetCourseListInternalAsync(page, itemsPerPage, cookie);
+        return JsonConvert.DeserializeObject<List<CourseModel>>(await response.Content.ReadAsStringAsync());
     }
 }

@@ -48,7 +48,7 @@ public class CourseApiClient
         {
             AddAuthCookie(cookie);
         }
-        return await _httpClient.PutAsJsonAsync($"{_baseUri}/course/{id}",course);
+        return await _httpClient.PutAsJsonAsync($"{_baseUri}/course/{id}", course);
     }
 
     public async Task<HttpResponseMessage> DeleteCourseAsync(int id, string cookie = null)
@@ -58,5 +58,14 @@ public class CourseApiClient
             AddAuthCookie(cookie);
         }
         return await _httpClient.DeleteAsync($"{_baseUri}/course/{id}");
+    }
+
+    public async Task<HttpResponseMessage> GetListCourseAsync(int page, int itemsPerPage, string cookie = null)
+    {
+        if (cookie != null)
+        {
+            AddAuthCookie(cookie);
+        }
+        return await _httpClient.GetAsync($"{_baseUri}/course/list/{page}/{itemsPerPage}");
     }
 }

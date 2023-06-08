@@ -1,5 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using BusinessLogic.Contracts;
+using DataAccess.Entities;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -132,7 +135,65 @@ namespace WebApi.Integration.Tests
             Assert.Equal(HttpStatusCode.OK, deletedCourseResponse.StatusCode);
             var course = await _courseService.GetCourseAsyncDel(courseId);
             Assert.True(course.Deleted);
-           // Assert.Equal(editCourseModel.Price, course.Price);
+            
+        }
+
+        [Fact]
+        public async Task CourseList_ShouldBe_OrderedById_Correctly()
+        {
+            //Arrange
+            var newCourseModel1 = new AddCourseModel
+            {
+                Name = Guid.NewGuid().ToString(),
+                Price = (new Random()).Next(int.MaxValue)
+            };
+            var newCourseModel2 = new AddCourseModel
+            {
+                Name = Guid.NewGuid().ToString(),
+                Price = (new Random()).Next(int.MaxValue)
+            };
+            int page = 1;
+            int itemsPerPage = 50;
+
+            var courseId1 = await _courseService.AddCourseAsync(newCourseModel1, _cookie);
+            var courseId2 = await _courseService.AddCourseAsync(newCourseModel2, _cookie);
+
+            //Act 
+            var response = await _courseService.GetCourseListInternalAsync(page, itemsPerPage, _cookie);
+            
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.True(courseId2- courseId1==1);
+            var course = JsonConvert.DeserializeObject<List<CourseModel>>(await response.Content.ReadAsStringAsync());
+            Assert.True(course[course.Count-1].Name.Equals(newCourseModel2.Name));
+            Assert.True(course[course.Count - 2].Name.Equals(newCourseModel1.Name));
+        }
+
+        [Fact]
+        public async Task Paging_InCourseList_OnFirstPage_And_SecondPage_ShouldBe_Worked_Correctly()
+        {
+            //Arrange
+           
+            int page = 2;
+            int itemsPerPage = 4;
+
+            //Act 
+            var response = await _courseService.GetCourseListInternalAsync(page, itemsPerPage, _cookie);
+            var response2 = await _courseService.GetCourseListInternalAsync(page+1, itemsPerPage, _cookie);
+
+            //Assert
+            var course_page1_last = await _courseService.GetCourseAsync(page*itemsPerPage);
+            var course_page2_last = await _courseService.GetCourseAsync((page+1)*itemsPerPage);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, response2.StatusCode);
+
+            
+            var course_page1 = JsonConvert.DeserializeObject<List<CourseModel>>(await response.Content.ReadAsStringAsync());
+            var course_page2 = JsonConvert.DeserializeObject<List<CourseModel>>(await response2.Content.ReadAsStringAsync());
+            Assert.True(course_page1[course_page1.Count-1].Name.Equals(course_page1_last.Name));
+            Assert.True(course_page1[course_page1.Count-1].Price.Equals(course_page1_last.Price));
+            Assert.True(course_page2[course_page2.Count-1].Name.Equals(course_page2_last.Name));
+            Assert.True(course_page2[course_page2.Count-1].Price.Equals(course_page2_last.Price));
         }
     }
 }
