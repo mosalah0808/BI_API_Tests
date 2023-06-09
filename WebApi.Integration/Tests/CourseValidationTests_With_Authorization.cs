@@ -195,5 +195,26 @@ namespace WebApi.Integration.Tests
             Assert.True(course_page2[course_page2.Count-1].Name.Equals(course_page2_last.Name));
             Assert.True(course_page2[course_page2.Count-1].Price.Equals(course_page2_last.Price));
         }
+
+        [Fact]
+        public async Task Paging_InCourseList_Should_Contains_Correct_Items()
+        {
+            //Arrange
+
+            int page = 1;
+            int itemsPerPage = 5;
+
+            //Act 
+            var response = await _courseService.GetCourseListInternalAsync(page, itemsPerPage, _cookie);
+           
+            //Assert
+            
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            
+            var course_page1 = JsonConvert.DeserializeObject<List<CourseModel>>(await response.Content.ReadAsStringAsync());
+           
+            Assert.Equal(course_page1.Count,itemsPerPage);
+                        
+        }
     }
 }
