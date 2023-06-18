@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
-using DataAccess.Entities;
 using Newtonsoft.Json;
 using WebApi.Models;
 
@@ -82,5 +82,39 @@ public class CourseService
     {
         var response = await GetCourseListInternalAsync(page, itemsPerPage, cookie);
         return JsonConvert.DeserializeObject<List<CourseModel>>(await response.Content.ReadAsStringAsync());
+    }
+    
+    public async Task<HttpResponseMessage> GetCoursesPerPage(int page, int itemsPerPage, string cookie = null)
+    {
+        return await _applicationHttpClient.GetCoursesPerPageAsync(page, itemsPerPage, cookie);
+    }
+    
+    public async Task<List<CourseModel>> GetCoursesPerPageAsync(int page, int itemsPerPage, string cookie = null)
+    {
+        var response = await GetCoursesPerPage(page, itemsPerPage, cookie);
+        return JsonConvert.DeserializeObject<List<CourseModel>>(await response.Content.ReadAsStringAsync());
+    }
+
+    public async Task EnsureThatCoursesListAvailableAsync(int coursesCount, string cookie = null)
+    {
+        var pageOneNumber = 1;
+        var courses = await GetCoursesPerPageAsync(pageOneNumber, coursesCount, cookie);
+        var actualCoursesCount = courses?.Count ?? 0; 
+        if(actualCoursesCount == coursesCount)
+        {
+            return;
+        }
+
+        var coursesNumberToCreate = coursesCount - actualCoursesCount;
+        for (int i = 0; i < coursesNumberToCreate; i++)
+        {
+            await CreateRandomCourseAsync(cookie);
+        }
+
+        courses = await GetCoursesPerPageAsync(pageOneNumber, coursesCount, cookie);
+        if(courses == null || courses.Count != coursesCount)
+        {
+            throw new Exception("Необъодимое количество курсов не создано");
+        }
     }
 }

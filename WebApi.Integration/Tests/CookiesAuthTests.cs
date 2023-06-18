@@ -34,7 +34,7 @@ namespace WebApi.Integration.Tests
             
             //Assert
             Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
-           
+           //RPRY также можно бытло проверить булевский результат, там возвращается true или false (удачно или неудачно)
             var cookieDto = httpResponseMessage.Headers.FirstOrDefault(h => h.Key == "Set-Cookie").Value.ToList().First();
             Assert.NotNull(cookieDto);
             

@@ -1,8 +1,7 @@
-﻿using BusinessLogic.Contracts;
-using DataAccess.Entities;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -40,7 +39,7 @@ namespace WebApi.Integration.Tests
             };
 
             //Act
-            _httpClient.DefaultRequestHeaders.Add("cookie", _cookie);
+            _httpClient.DefaultRequestHeaders.Add("cookie", _cookie); //RPRY лучше вызывать метод сервиса, где куки подкладывается уже под капотом. Здесь и ниже
             var response = await _httpClient.PostAsJsonAsync($"{_baseUri}/course", courseModel);
 
             //Assert
@@ -50,7 +49,7 @@ namespace WebApi.Integration.Tests
         }
 
         [Fact]
-        public async Task IfNameIsEmpty_PostCourseShouldReturnError()
+        public async Task IfNameIsEmpty_PostCourseShouldReturnError() //RPRY: можно сделать параметризованный тест, подставляя не только "" но и NULL
         {
             //Arrange 
             var courseModel = new CourseModel
@@ -61,7 +60,7 @@ namespace WebApi.Integration.Tests
 
             //Act
             _httpClient.DefaultRequestHeaders.Add("cookie", _cookie);
-            var response = await _httpClient.PostAsJsonAsync($"{_baseUri}/course", courseModel);
+            var response = await _httpClient.PostAsJsonAsync($"{_baseUri}/course", courseModel); 
 
             //Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -105,7 +104,7 @@ namespace WebApi.Integration.Tests
             {
                 Name = Guid.NewGuid().ToString(),
                 Price = (new Random()).Next(int.MaxValue)
-            };
+            }; 
             //Act
             var editCourseResponse = await _courseService.EditCourseInternalAsync(courseId, editCourseModel, _cookie);
 
@@ -155,8 +154,8 @@ namespace WebApi.Integration.Tests
             int page = 1;
             int itemsPerPage = 50;
 
-            var courseId1 = await _courseService.AddCourseAsync(newCourseModel1, _cookie);
-            var courseId2 = await _courseService.AddCourseAsync(newCourseModel2, _cookie);
+            var courseId1 = await _courseService.AddCourseAsync(newCourseModel1, _cookie); //RPRY Добавлять новые сущности можно если их нет  
+            var courseId2 = await _courseService.AddCourseAsync(newCourseModel2, _cookie); //RPRY в Act должен быть один вызов. Здесь и ниже
 
             //Act 
             var response = await _courseService.GetCourseListInternalAsync(page, itemsPerPage, _cookie);
@@ -165,7 +164,7 @@ namespace WebApi.Integration.Tests
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.True(courseId2- courseId1==1);
             var course = JsonConvert.DeserializeObject<List<CourseModel>>(await response.Content.ReadAsStringAsync());
-            Assert.True(course[course.Count-1].Name.Equals(newCourseModel2.Name));
+            Assert.True(course[course.Count-1].Name.Equals(newCourseModel2.Name)); //RPRY не факт что выведутся те сущности, которые были добавлены. На самом деле выводятся те, которые идут первыми в БД 
             Assert.True(course[course.Count - 2].Name.Equals(newCourseModel1.Name));
         }
 
@@ -215,6 +214,25 @@ namespace WebApi.Integration.Tests
            
             Assert.Equal(course_page1.Count,itemsPerPage);
                         
+        }
+        
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        public async Task ItemsPerPageAlgorithmShouldReturnCorrectData_RPRY(int page) //RPRY: см. мой вариант после добавления в АПИ Id
+        {
+            //Arrange
+            var itemsPerPage = 2;
+            await _courseService.EnsureThatCoursesListAvailableAsync(page * itemsPerPage, _cookie);
+
+            //Act
+            var courses = await _courseService.GetCoursesPerPageAsync(page, itemsPerPage, _cookie);
+
+            //Assert
+            Assert.Equal(itemsPerPage, courses.Count);
+            var actualListIds = courses.Select(c => c.Id).ToList();
+            var orderedActualListIds = actualListIds.OrderBy(id => id).ToList();
+            Assert.Equal(actualListIds, orderedActualListIds);
         }
     }
 }

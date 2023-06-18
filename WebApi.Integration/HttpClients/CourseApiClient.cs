@@ -68,4 +68,13 @@ public class CourseApiClient
         }
         return await _httpClient.GetAsync($"{_baseUri}/course/list/{page}/{itemsPerPage}");
     }
+    
+    public async Task<HttpResponseMessage> GetCoursesPerPageAsync(int page, int itemsPerPage, string cookie = null)
+    {
+        if (cookie != null)
+        {
+            AddAuthCookie(cookie);
+        }
+        return await _httpClient.GetAsync($"{_baseUri}/course/list/{page}/{itemsPerPage}");
+    }
 }
